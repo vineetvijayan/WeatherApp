@@ -11,14 +11,14 @@
 
         <variable
             name="viewModel"
-            type="com.vv.syncpoc.ui.main.MainViewModel" />
+            type="com.vv.syncpoc.viewmodel.MainViewModel" />
     </data>
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/container"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        tools:context=".MainActivity">
+        tools:context=".ui.MainActivity">
 
 
         <TextView

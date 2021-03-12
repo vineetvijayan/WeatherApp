@@ -1,4 +1,4 @@
-package com.vv.syncpoc.ui.main;
+package com.vv.syncpoc.viewmodel;
 
 import android.app.Application;
 import android.util.Log;
@@ -15,7 +15,6 @@ import androidx.work.WorkInfo;
 import androidx.work.WorkManager;
 
 import com.vv.syncpoc.model.WeatherMapResponseModel;
-import com.vv.syncpoc.network.DataRepository;
 import com.vv.syncpoc.network.WeatherResponseWorker;
 import com.vv.syncpoc.room.DatabaseClient;
 import com.vv.syncpoc.room.WeatherResponseRoomModel;
@@ -23,20 +22,11 @@ import com.vv.syncpoc.room.WeatherResponseRoomModel;
 import java.util.concurrent.TimeUnit;
 
 public class MainViewModel extends AndroidViewModel {
-    public MutableLiveData<WeatherMapResponseModel> weatherMapResponseModelMutableLiveData;
     private WorkManager workManager;
     public MutableLiveData<WeatherResponseRoomModel> weatherResponseRoomModelMutableLiveData = new MutableLiveData<>();
 
     public MainViewModel(@NonNull Application application) {
         super(application);
-    }
-
-    public void fetchList(double latitude, double longitude) {
-        weatherMapResponseModelMutableLiveData = new DataRepository().getList(latitude, longitude);
-    }
-
-    public LiveData<WeatherMapResponseModel> getListObservable() {
-        return weatherMapResponseModelMutableLiveData;
     }
 
     public LiveData<WeatherResponseRoomModel> getWeatherDataFromDBObservable() {
@@ -67,14 +57,6 @@ public class MainViewModel extends AndroidViewModel {
                 getDataFromDB();
             }
         });
-
-//        WorkManager.getInstance().getWorkInfoByIdLiveData(periodicWorkRequest.getId())
-//                .observe(this, Observer { workInfo ->
-//            // Check if the current work's state is "successfully finished"
-//            if (workInfo != null && workInfo.state == WorkInfo.State.SUCCEEDED) {
-//                displayImage(workInfo.outputData.getString(KEY_IMAGE_URI))
-//            }
-//        });
     }
 
     public void getDataFromDB() {

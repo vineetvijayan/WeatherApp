@@ -1,4 +1,4 @@
-package com.vv.syncpoc;
+package com.vv.syncpoc.ui;
 
 import android.Manifest;
 import android.content.pm.PackageManager;
@@ -10,27 +10,17 @@ import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.databinding.DataBindingUtil;
-import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
-import androidx.work.Constraints;
-import androidx.work.NetworkType;
-import androidx.work.OneTimeWorkRequest;
-import androidx.work.PeriodicWorkRequest;
-import androidx.work.WorkInfo;
-import androidx.work.WorkManager;
 
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationCallback;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
+import com.vv.syncpoc.R;
 import com.vv.syncpoc.databinding.MainActivityBinding;
-import com.vv.syncpoc.network.WeatherResponseWorker;
 import com.vv.syncpoc.room.DatabaseClient;
-import com.vv.syncpoc.ui.main.MainFragment;
-import com.vv.syncpoc.ui.main.MainViewModel;
+import com.vv.syncpoc.viewmodel.MainViewModel;
 import com.vv.syncpoc.utils.PermissionUtils;
-
-import java.util.concurrent.TimeUnit;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -52,14 +42,10 @@ public class MainActivity extends AppCompatActivity {
 
         mViewModel = new ViewModelProvider(this).get(MainViewModel.class);
         binding.setViewModel(mViewModel);
+        binding.setLifecycleOwner(this);
 
         mViewModel.getDataFromDB();
 
-        if (savedInstanceState == null) {
-            getSupportFragmentManager().beginTransaction()
-                    .replace(R.id.container, MainFragment.newInstance())
-                    .commitNow();
-        }
 //        setLocationParams();
         getLocation();
         observeWeatherRoomData();
@@ -145,49 +131,6 @@ public class MainActivity extends AppCompatActivity {
             mViewModel.callWeatherApi(this);
             weatherServiceTriggered = true;
         }
-
-//        // observe worker changes
-//        WorkManager.getInstance().getWorkInfosByTag("weather_periodic_request").observe(this, new Observer<WorkInfo>() {
-//            @Override
-//            public void onChanged(WorkInfo workInfo) {
-//                if(workInfo.getState().isFinished()) {
-//
-//                }
-//            }
-//        });
-    }
-
-    private void callWeatherApi(double latitude, double longitude) {
-        // fetch list to be displayed
-//        mViewModel.fetchList(latitude, longitude);
-//        observeViewModel();
-
-        OneTimeWorkRequest oneTimeWorkRequest = new OneTimeWorkRequest.Builder(WeatherResponseWorker.class).build();
-        WorkManager.getInstance().enqueue(oneTimeWorkRequest);
-
-        Constraints constraints = new Constraints.Builder()
-                .setRequiredNetworkType(NetworkType.CONNECTED)
-                .build();
-
-
-        PeriodicWorkRequest periodicWorkRequest =
-                new PeriodicWorkRequest.Builder(WeatherResponseWorker.class, 1, TimeUnit.MINUTES)
-                        .setConstraints(constraints)
-                        .build();
-
-        WorkManager.getInstance().enqueue(periodicWorkRequest);
-
-    }
-
-    private void observeViewModel() {
-        // Update the list when the data changes
-        mViewModel.getListObservable().observe(this, data -> {
-            if (data != null && data.getMain() != null) {
-                Log.d("Response", data.getMain().getTemp().toString());
-            } else {
-
-            }
-        });
     }
 
     private void observeWeatherRoomData() {
